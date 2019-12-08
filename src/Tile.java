@@ -46,10 +46,11 @@ public class Tile extends GameObj {
     public void draw(Graphics g) {
         g.setColor(this.color);
         g.fillRect(this.getPx(), this.getPy(), this.getWidth(), this.getHeight());
-        g.setColor(Color.black);
-        g.setFont(new Font("Helvetica", Font.PLAIN, 20)); 
-        g.drawString(this.number + "", this.getPx(), this.getPy() + 50);
-    }
+        g.setColor(Color.white);
+        g.setFont(new Font("Helvetica", Font.BOLD, 20)); 
+        int width = g.getFontMetrics().stringWidth(this.number+"");
+        g.drawString(this.number + "", this.getPx() + 50 - width, this.getPy() + 55);
+    }  
     
     @Override
     public boolean equals(Object o) { 
