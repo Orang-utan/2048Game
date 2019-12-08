@@ -50,7 +50,7 @@ public class Game implements Runnable {
         final JButton save = new JButton("Save");
         save.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println("SAVVEEEE BOI");
+                board.save();
             }
         });
         control_panel.add(save);
@@ -58,7 +58,7 @@ public class Game implements Runnable {
         final JButton revert = new JButton("Revert");
         revert.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Revert BOI");
+                board.revert();
             }
         });
         control_panel.add(revert);

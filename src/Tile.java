@@ -38,15 +38,15 @@ public class Tile extends GameObj {
     	return this.number;
     }
     
-    public void setNumber(Tile tile) {
-    	this.number = this.number + tile.getNumber();
+    public void setNumber(int number) {
+    	this.number = number;
     }
 
     @Override
     public void draw(Graphics g) {
         g.setColor(this.color);
         g.fillRect(this.getPx(), this.getPy(), this.getWidth(), this.getHeight());
-        g.setColor(Color.white);
+        g.setColor(Color.black);
         g.setFont(new Font("Helvetica", Font.PLAIN, 20)); 
         g.drawString(this.number + "", this.getPx(), this.getPy() + 50);
     }
