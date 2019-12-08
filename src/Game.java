@@ -18,7 +18,7 @@ public class Game implements Runnable {
 
         // Top-level frame in which game components live
         // Be sure to change "TOP LEVEL FRAME" to the name of your game
-        final JFrame frame = new JFrame("TOP LEVEL FRAME");
+        final JFrame frame = new JFrame("2048 Game");
         frame.setLocation(300, 300);
         frame.setResizable(false);
 
@@ -29,8 +29,8 @@ public class Game implements Runnable {
         status_panel.add(status);
 
         // Main playing area
-        final GameCourt court = new GameCourt(status);
-        frame.add(court, BorderLayout.CENTER);
+        final GameBoard board = new GameBoard(status);
+        frame.add(board, BorderLayout.CENTER);
         
         // Reset button
         final JPanel control_panel = new JPanel();
@@ -42,7 +42,7 @@ public class Game implements Runnable {
         final JButton reset = new JButton("Reset");
         reset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                court.reset();
+                board.reset();
             }
         });
         control_panel.add(reset);
@@ -69,7 +69,7 @@ public class Game implements Runnable {
         frame.setVisible(true);
 
         // Start game
-        court.reset();
+        board.reset();
     }
 
     /**
