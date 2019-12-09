@@ -20,6 +20,8 @@ public class GameBoard extends JPanel {
 	private boolean firstLaunch = true;
 	private JLabel status;
 	private JLabel score;
+	private JLabel hint;
+	private boolean sandboxMode = false;
 
 	public static final int COURT_WIDTH = 400;
 	public static final int COURT_HEIGHT = 400;
@@ -93,7 +95,7 @@ public class GameBoard extends JPanel {
 		return true;
 	}
 
-	private void move(Direction d) {
+	public void move(Direction d) {
 		int[][] latestState = history.get(history.size() - 1);
 		int[][] newState;
 
@@ -122,12 +124,13 @@ public class GameBoard extends JPanel {
 		if (isSameState(newState, latestState)) {
 			return;
 		}
+		
 
 		history.add(placeRandomTile(newState));
 		repaint();
 	}
 
-	public GameBoard(JLabel status, JLabel score) {
+	public GameBoard(JLabel status, JLabel score, JLabel hint) {
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
 		Timer timer = new Timer(INTERVAL, new ActionListener() {
@@ -159,6 +162,7 @@ public class GameBoard extends JPanel {
 
 		this.status = status;
 		this.score = score;
+		this.hint = hint;
 	}
 
 	public void reset() {
@@ -180,7 +184,6 @@ public class GameBoard extends JPanel {
 			int[][] savedState = FileUtils.readStateFromFile(SAVED_GAME_FILEPATH);
 			// set score from file
 			int scoreNum = Integer.parseInt(FileUtils.readFromFile(SAVED_SCORE_FILEPATH).get(0));
-			System.out.println(scoreNum);
 			history.add(savedState);
 			setScoreNum(scoreNum);
 			firstLaunch = false;
@@ -189,10 +192,17 @@ public class GameBoard extends JPanel {
 		} 
 
 		playing = true;
-		status.setText("Running...");
+		status.setText("Running;");
 
 		requestFocusInWindow();
 		repaint();
+	}
+	 
+	public void sandboxReset(int[][] state, int score) {
+		history.removeAll(history);
+		history.add(state);
+		setScoreNum(score);
+		playing = true;
 	}
 
 	private void normalReset() {
@@ -204,6 +214,8 @@ public class GameBoard extends JPanel {
 		int[][] modifiedState = placeRandomTile(placeRandomTile(initialState));
 		FileUtils.saveStateToFile(SAVED_GAME_FILEPATH, modifiedState);
 		history.add(modifiedState);
+		
+		hint.setText("Hint: N/A");
 
 		// save score
 		setScoreNum(0);
@@ -219,7 +231,8 @@ public class GameBoard extends JPanel {
 	}
 
 	public void aiSolver() {
-		System.out.println("ai!");
+		String hints = AIAssist.greedyOptimizer(2, history.get(history.size() - 1), getScoreNum());
+		hint.setText(hints);
 		requestFocusInWindow();
 	}
 
@@ -227,10 +240,14 @@ public class GameBoard extends JPanel {
 		if (playing) {
 			if (playerLost()) {
 				playing = false;
-				status.setText("You lost!");
-				score.setText("Score: 0");
+				if(!sandboxMode) {
+					status.setText("You lost!");
+					score.setText("Score: 0;");
+				}
 			} else {
-				score.setText("Score: " + this.getScoreNum());
+				if(!sandboxMode) {
+					score.setText("Score: " + this.getScoreNum() + ";");
+				}
 			}
 		}
 	}
@@ -264,6 +281,14 @@ public class GameBoard extends JPanel {
 
 	public void setScoreNum(int scoreNum) {
 		this.scoreNum = scoreNum;
+	}
+
+	public boolean isSandboxMode() {
+		return sandboxMode;
+	}
+
+	public void setSandboxMode(boolean sandboxMode) {
+		this.sandboxMode = sandboxMode;
 	}
 
 }

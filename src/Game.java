@@ -25,13 +25,15 @@ public class Game implements Runnable {
         // Status panel
         final JPanel status_panel = new JPanel();
         frame.add(status_panel, BorderLayout.SOUTH);
-        final JLabel status = new JLabel("Running...");
+        final JLabel status = new JLabel("Running;");
         status_panel.add(status);
-        final JLabel score = new JLabel("Score: 0");
+        final JLabel score = new JLabel("Score: 0;");
         status_panel.add(score);
+        final JLabel hint = new JLabel("Hint: N/A");
+        status_panel.add(hint);
  
         // Main playing area
-        final GameBoard board = new GameBoard(status, score);
+        final GameBoard board = new GameBoard(status, score, hint);
         frame.add(board, BorderLayout.CENTER);
         
         // Reset button
@@ -52,7 +54,7 @@ public class Game implements Runnable {
         final JButton ai_assist = new JButton("AI Assist");
         ai_assist.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                board.aiSolver();
+                board.aiSolver(); 
             }
         });
         control_panel.add(ai_assist);
