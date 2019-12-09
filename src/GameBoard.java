@@ -7,30 +7,25 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.*;
 
-/**
- * GameCourt
- * 
- * This class holds the primary game logic for how different objects interact
- * with one another. Take time to understand how the timer interacts with the
- * different methods and how it repaints the GUI on every tick().
- */
 @SuppressWarnings("serial")
 public class GameBoard extends JPanel {
 
 	public boolean playing = false;
+	private boolean firstLaunch = true;
 	private JLabel status;
+	private JLabel score;
 
 	public static final int COURT_WIDTH = 400;
 	public static final int COURT_HEIGHT = 400;
 
 	public static final int INTERVAL = 35;
+	
+	public static final String SAVED_GAME_FILEPATH = "files/SavedGame.txt";
 
 	private ArrayList<int[][]> history = new ArrayList<int[][]>();
 
@@ -54,11 +49,16 @@ public class GameBoard extends JPanel {
 		}
 
 		while (newArr[randomX][randomY] != 0) {
-			randomX = getRandomNumberInts(0, 3);
-			randomY = getRandomNumberInts(0, 3);
+			randomX = getRandomNumberInts(0, state.length - 1);
+			randomY = getRandomNumberInts(0, state[0].length - 1);
 		}
-
-		newArr[randomX][randomY] = 2;
+		
+		// 33% chance of generating a 4
+		if (getRandomNumberInts(0, 2) == 2) {
+			newArr[randomX][randomY] = 4;
+		} else {
+			newArr[randomX][randomY] = 2;
+		}
 
 		return newArr;
 	}
@@ -88,38 +88,33 @@ public class GameBoard extends JPanel {
 		}
 		return true;
 	}
-	
+
 	private void move(Direction d) {
 		int[][] latestState = history.get(history.size() - 1);
 		int[][] newState;
-		
-		switch(d) {
+
+		switch (d) {
 		case RIGHT:
-			newState = MoveManipulations.slideRight(
-					MoveManipulations.mergeRight(
-					MoveManipulations.slideRight(latestState)));
+			newState = MoveManipulations
+					.slideRight(MoveManipulations.mergeRight(MoveManipulations.slideRight(latestState)));
 			break;
 		case LEFT:
-			newState = MoveManipulations.slideLeft(
-					MoveManipulations.mergeLeft(
-					MoveManipulations.slideLeft(latestState)));
+			newState = MoveManipulations
+					.slideLeft(MoveManipulations.mergeLeft(MoveManipulations.slideLeft(latestState)));
 			break;
 		case DOWN:
-			newState = MoveManipulations.slideDown(
-					MoveManipulations.mergeDown(
-					MoveManipulations.slideDown(latestState)));
+			newState = MoveManipulations
+					.slideDown(MoveManipulations.mergeDown(MoveManipulations.slideDown(latestState)));
 			break;
 		case UP:
-			newState = MoveManipulations.slideUp(
-					MoveManipulations.mergeUp(
-					MoveManipulations.slideUp(latestState)));
+			newState = MoveManipulations.slideUp(MoveManipulations.mergeUp(MoveManipulations.slideUp(latestState)));
 			break;
 		default:
 			newState = Utils.copyArray(latestState);
 			break;
 		}
-		
-		if(isSameState(newState, latestState)) {
+
+		if (isSameState(newState, latestState)) {
 			return;
 		}
 		
@@ -127,7 +122,7 @@ public class GameBoard extends JPanel {
 		repaint();
 	}
 
-	public GameBoard(JLabel status) {
+	public GameBoard(JLabel status, JLabel score) {
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
 		Timer timer = new Timer(INTERVAL, new ActionListener() {
@@ -138,10 +133,10 @@ public class GameBoard extends JPanel {
 		timer.start();
 
 		setFocusable(true);
-		
+
 		addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
-				if(playing) {
+				if (playing) {
 					if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 						move(Direction.LEFT);
 					} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
@@ -151,20 +146,32 @@ public class GameBoard extends JPanel {
 					} else if (e.getKeyCode() == KeyEvent.VK_UP) {
 						move(Direction.UP);
 					}
+					FileUtils.saveStateToFile(SAVED_GAME_FILEPATH, history.get(history.size() - 1));
 				}
 			}
 		});
 
 		this.status = status;
+		this.score = score;
 	}
 
 	public void reset() {
-		// initialize state
-		int[][] initialState = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
-		// place two random tiles in the beginning
-		int[][] modifiedState = placeRandomTile(placeRandomTile(initialState));
-
-		history.add(modifiedState);
+		// automatically read saved state on first launch
+		if(firstLaunch) {
+			int[][] savedState = FileUtils.readStateFromFile(SAVED_GAME_FILEPATH);
+			history.add(savedState);
+			firstLaunch = false;
+		} else {
+			// clear history
+			history.removeAll(history);
+			// initialize state
+			int[][] initialState = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
+			// place two random tiles in the beginning
+			int[][] modifiedState = placeRandomTile(placeRandomTile(initialState));
+			FileUtils.saveStateToFile(SAVED_GAME_FILEPATH, modifiedState);
+	
+			history.add(modifiedState);
+		}
 
 		playing = true;
 		status.setText("Running...");
@@ -173,12 +180,17 @@ public class GameBoard extends JPanel {
 		repaint();
 	}
 
-	public void revert() {
-		System.out.println("revert!");
+	public void undo() {
+		if (history.size() > 1) {
+			history.remove(history.size() - 1);
+			repaint();
+		}
+		requestFocusInWindow();
 	}
 
-	public void save() {
-		System.out.println("save!");
+	public void aiSolver() {
+		System.out.println("ai!");
+		requestFocusInWindow();
 	}
 
 	void tick() {

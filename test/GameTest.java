@@ -3,6 +3,7 @@ import static org.junit.Assert.fail;
 
 import java.awt.Color;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -211,6 +212,54 @@ public class GameTest {
     	System.out.println("Merge up test");
     	print2DArr(modified); 
         assertEquals("Compare", GameBoard.isSameState(modified, arr2), true);
+    }
+    
+    @Test
+    public void readFromTextFile() {
+    	ArrayList<String> al = FileUtils.readFromFile("files/DemoFile.txt");
+    	assertEquals("Compare", al.get(0).equals("Hello world"), true);
+    	assertEquals("Compare", al.get(1).equals("My name is world"), true);
+    	assertEquals("Compare", al.get(2).equals("This is line 3"), true);
+    	
+    }
+    
+    @Test
+    public void writeStateToFile() {
+    	int[][] arr1 = {
+    			{0,2,2,2},
+    			{0,2,2,4},
+    			{0,2,0,0},
+    			{0,2,0,0}};
+    	
+    	FileUtils.saveStateToFile("files/WriteFile.txt", arr1);
+    } 
+    
+    @Test
+    public void parseStateFromStringList() {
+    	int[][] arr1 = {
+    			{0,2,2,2},
+    			{0,2,2,4}};
+    	
+    	ArrayList<String> al = new ArrayList<String>();
+    	al.add("0,2,2,2,");
+    	al.add("0,2,2,4,");
+    	
+    	int[][] parsedArr = FileUtils.parseStateFromStringList(al);
+    	
+    	assertEquals("Compare", GameBoard.isSameState(arr1, parsedArr), true);
+    }
+    
+    @Test
+    public void readStateFromFile() {
+    	int[][] arr1 = {
+    			{0,2,2,2},
+    			{0,2,2,4},
+    			{0,2,0,0},
+    			{0,2,0,0}};
+    	
+    	int[][] parsedArr = FileUtils.readStateFromFile("files/WriteFile.txt");
+    	
+    	assertEquals("Compare", GameBoard.isSameState(arr1, parsedArr), true);
     }
 
 }

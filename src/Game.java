@@ -20,16 +20,18 @@ public class Game implements Runnable {
         // Be sure to change "TOP LEVEL FRAME" to the name of your game
         final JFrame frame = new JFrame("2048 Game");
         frame.setLocation(300, 300);
-        frame.setResizable(false);
+        frame.setResizable(false); 
 
         // Status panel
         final JPanel status_panel = new JPanel();
         frame.add(status_panel, BorderLayout.SOUTH);
         final JLabel status = new JLabel("Running...");
         status_panel.add(status);
-
+        final JLabel score = new JLabel("Score: 0");
+        status_panel.add(score);
+ 
         // Main playing area
-        final GameBoard board = new GameBoard(status);
+        final GameBoard board = new GameBoard(status, score);
         frame.add(board, BorderLayout.CENTER);
         
         // Reset button
@@ -47,18 +49,18 @@ public class Game implements Runnable {
         });
         control_panel.add(reset);
         
-        final JButton save = new JButton("Save");
-        save.addActionListener(new ActionListener() {
+        final JButton ai_assist = new JButton("AI Assist");
+        ai_assist.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                board.save();
+                board.aiSolver();
             }
         });
-        control_panel.add(save);
+        control_panel.add(ai_assist);
         
-        final JButton revert = new JButton("Revert");
+        final JButton revert = new JButton("Undo");
         revert.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                board.revert();
+                board.undo();
             }
         });
         control_panel.add(revert);
