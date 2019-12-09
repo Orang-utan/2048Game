@@ -32,12 +32,34 @@ public class FileUtils {
 		
 	}
 	
+	// save the state to a text file, it overwrites original file content
+		public static void saveScoreToFile(String filePath, int score) {
+			
+			try {
+				File newFile = new File(filePath);
+				newFile.createNewFile();
+				
+	            FileWriter writer = new FileWriter(filePath, false);
+	            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+	            
+
+	            bufferedWriter.write(score + "");
+
+	 
+	            bufferedWriter.close();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+			
+		}
+	
 	// returns all lines in the form of an arraylist, each line is an element
 	public static ArrayList<String> readFromFile(String filePath) {
 		
 		ArrayList<String> allLines = new ArrayList<String>();
 		
 		try {
+			
             FileReader reader = new FileReader(filePath);
             BufferedReader bufferedReader = new BufferedReader(reader);
  
@@ -57,6 +79,9 @@ public class FileUtils {
 	
 	// parse string list back to int[][] state
 	public static int[][] parseStateFromStringList(ArrayList<String> al) {
+		if(al == null) {
+			return null;
+		}
 		int numRows = al.size();
 		int numCols = al.get(0).split(",").length;
 		int[][] state = new int[numRows][numCols];

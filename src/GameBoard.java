@@ -7,6 +7,7 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -24,10 +25,13 @@ public class GameBoard extends JPanel {
 	public static final int COURT_HEIGHT = 400;
 
 	public static final int INTERVAL = 35;
-	
+
 	public static final String SAVED_GAME_FILEPATH = "files/SavedGame.txt";
+	public static final String SAVED_SCORE_FILEPATH = "files/SavedScore.txt";
 
 	private ArrayList<int[][]> history = new ArrayList<int[][]>();
+
+	private int scoreNum = 0;
 
 	public static int getRandomNumberInts(int min, int max) {
 		Random random = new Random();
@@ -52,7 +56,7 @@ public class GameBoard extends JPanel {
 			randomX = getRandomNumberInts(0, state.length - 1);
 			randomY = getRandomNumberInts(0, state[0].length - 1);
 		}
-		
+
 		// 33% chance of generating a 4
 		if (getRandomNumberInts(0, 2) == 2) {
 			newArr[randomX][randomY] = 4;
@@ -96,18 +100,19 @@ public class GameBoard extends JPanel {
 		switch (d) {
 		case RIGHT:
 			newState = MoveManipulations
-					.slideRight(MoveManipulations.mergeRight(MoveManipulations.slideRight(latestState)));
+					.slideRight(MoveManipulations.mergeRight(MoveManipulations.slideRight(latestState), this));
 			break;
 		case LEFT:
 			newState = MoveManipulations
-					.slideLeft(MoveManipulations.mergeLeft(MoveManipulations.slideLeft(latestState)));
+					.slideLeft(MoveManipulations.mergeLeft(MoveManipulations.slideLeft(latestState), this));
 			break;
 		case DOWN:
 			newState = MoveManipulations
-					.slideDown(MoveManipulations.mergeDown(MoveManipulations.slideDown(latestState)));
+					.slideDown(MoveManipulations.mergeDown(MoveManipulations.slideDown(latestState), this));
 			break;
 		case UP:
-			newState = MoveManipulations.slideUp(MoveManipulations.mergeUp(MoveManipulations.slideUp(latestState)));
+			newState = MoveManipulations
+					.slideUp(MoveManipulations.mergeUp(MoveManipulations.slideUp(latestState), this));
 			break;
 		default:
 			newState = Utils.copyArray(latestState);
@@ -117,7 +122,7 @@ public class GameBoard extends JPanel {
 		if (isSameState(newState, latestState)) {
 			return;
 		}
-		
+
 		history.add(placeRandomTile(newState));
 		repaint();
 	}
@@ -147,6 +152,7 @@ public class GameBoard extends JPanel {
 						move(Direction.UP);
 					}
 					FileUtils.saveStateToFile(SAVED_GAME_FILEPATH, history.get(history.size() - 1));
+					FileUtils.saveScoreToFile(SAVED_SCORE_FILEPATH, getScoreNum());
 				}
 			}
 		});
@@ -156,28 +162,52 @@ public class GameBoard extends JPanel {
 	}
 
 	public void reset() {
+		int[][] initialState = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
+
+		// check if file exist or not
+		if (!new File(SAVED_GAME_FILEPATH).exists()) {
+			FileUtils.saveStateToFile(SAVED_GAME_FILEPATH, initialState);
+		}
+		
+		if(!new File(SAVED_SCORE_FILEPATH).exists()) {
+			FileUtils.saveScoreToFile(SAVED_SCORE_FILEPATH, 0);
+			normalReset();
+		}
+
 		// automatically read saved state on first launch
-		if(firstLaunch) {
+		if (firstLaunch) {
+			// set history from file
 			int[][] savedState = FileUtils.readStateFromFile(SAVED_GAME_FILEPATH);
+			// set score from file
+			int scoreNum = Integer.parseInt(FileUtils.readFromFile(SAVED_SCORE_FILEPATH).get(0));
+			System.out.println(scoreNum);
 			history.add(savedState);
+			setScoreNum(scoreNum);
 			firstLaunch = false;
 		} else {
-			// clear history
-			history.removeAll(history);
-			// initialize state
-			int[][] initialState = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
-			// place two random tiles in the beginning
-			int[][] modifiedState = placeRandomTile(placeRandomTile(initialState));
-			FileUtils.saveStateToFile(SAVED_GAME_FILEPATH, modifiedState);
-	
-			history.add(modifiedState);
-		}
+			normalReset();
+		} 
 
 		playing = true;
 		status.setText("Running...");
 
 		requestFocusInWindow();
 		repaint();
+	}
+
+	private void normalReset() {
+		int[][] initialState = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
+		// clear history
+		history.removeAll(history);
+		// initialize state
+		// place two random tiles in the beginning
+		int[][] modifiedState = placeRandomTile(placeRandomTile(initialState));
+		FileUtils.saveStateToFile(SAVED_GAME_FILEPATH, modifiedState);
+		history.add(modifiedState);
+
+		// save score
+		setScoreNum(0);
+		FileUtils.saveScoreToFile(SAVED_SCORE_FILEPATH, getScoreNum());
 	}
 
 	public void undo() {
@@ -198,6 +228,9 @@ public class GameBoard extends JPanel {
 			if (playerLost()) {
 				playing = false;
 				status.setText("You lost!");
+				score.setText("Score: 0");
+			} else {
+				score.setText("Score: " + this.getScoreNum());
 			}
 		}
 	}
@@ -223,6 +256,14 @@ public class GameBoard extends JPanel {
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(COURT_WIDTH, COURT_HEIGHT);
+	}
+
+	public int getScoreNum() {
+		return scoreNum;
+	}
+
+	public void setScoreNum(int scoreNum) {
+		this.scoreNum = scoreNum;
 	}
 
 }

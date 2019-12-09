@@ -46,7 +46,7 @@ public class Game implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 board.reset();
             }
-        });
+        }); 
         control_panel.add(reset);
         
         final JButton ai_assist = new JButton("AI Assist");

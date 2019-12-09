@@ -71,8 +71,8 @@ public class GameTest {
     public void mergeRightTest() {
     	int[][] arr1 = {{0,0,2,2},{0,0,0,0},{0,0,0,8},{0,2,2,2}};
     	int[][] arr2 = {{0,0,0,4},{0,0,0,0},{0,0,0,8},{0,2,0,4}};
-    	
-    	int[][] modified = MoveManipulations.mergeRight(arr1);
+    	final GameBoard b = new GameBoard(null, null);
+    	int[][] modified = MoveManipulations.mergeRight(arr1, b);
     	System.out.println("Merge right test");
     	System.out.println("Modified");
     	print2DArr(modified); 
@@ -108,8 +108,8 @@ public class GameTest {
     public void mergeLeftTest() {
     	int[][] arr1 = {{2,2,0,0},{2,2,2,2},{8,0,0,0},{2,2,2,0}};
     	int[][] arr2 = {{4,0,0,0},{4,0,4,0},{8,0,0,0},{4,0,2,0}};
-    	
-    	int[][] modified = MoveManipulations.mergeLeft(arr1);
+    	final GameBoard b = new GameBoard(null, null);
+    	int[][] modified = MoveManipulations.mergeLeft(arr1, b);
     	System.out.println("Merge left test");
     	System.out.println("Modified");
     	print2DArr(modified); 
@@ -150,8 +150,9 @@ public class GameTest {
     			{0,2,0,0},
     			{0,0,0,0},
     			{0,4,4,0}};
+    	final GameBoard b = new GameBoard(null, null);
     	
-    	int[][] modified = MoveManipulations.mergeDown(arr1);
+    	int[][] modified = MoveManipulations.mergeDown(arr1, b);
     	System.out.println("Merge down test");
     	print2DArr(modified); 
         assertEquals("Compare", GameBoard.isSameState(modified, arr2), true);
@@ -207,8 +208,9 @@ public class GameTest {
     			{0,0,0,4},
     			{0,4,0,0},
     			{0,0,0,0}};
+    	final GameBoard b = new GameBoard(null, null);
     	
-    	int[][] modified = MoveManipulations.mergeUp(arr1);
+    	int[][] modified = MoveManipulations.mergeUp(arr1, b);
     	System.out.println("Merge up test");
     	print2DArr(modified); 
         assertEquals("Compare", GameBoard.isSameState(modified, arr2), true);

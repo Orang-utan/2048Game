@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class MoveManipulations {
 	
 	// after tile reaches upper bound, it gets reset to 0
-	public static final int UPPER_BOUND = 2048; 
+	public static final int UPPER_BOUND = 4096; 
 
 	public static int[][] slideRight(int[][] latestState) {
 		// create a new state to be modified
@@ -31,7 +31,7 @@ public class MoveManipulations {
 		return newState;
 	}
 	
-	public static int[][] mergeRight(int[][] latestState) {
+	public static int[][] mergeRight(int[][] latestState, GameBoard g) {
 		// create a new state to be modified
 		int[][] newState = Utils.copyArray(latestState);
 
@@ -44,6 +44,7 @@ public class MoveManipulations {
 						newState[i][j] = 0;
 					} else {
 						newState[i][j] = current + prev;
+						g.setScoreNum(g.getScoreNum() + prev + current);
 					}
 					newState[i][j - 1] = 0;
 				} 
@@ -78,7 +79,7 @@ public class MoveManipulations {
 		return newState;
 	}
 	
-	public static int[][] mergeLeft(int[][] latestState) {
+	public static int[][] mergeLeft(int[][] latestState, GameBoard g) {
 		// create a new state to be modified
 		int[][] newState = Utils.copyArray(latestState);
 
@@ -91,6 +92,7 @@ public class MoveManipulations {
 						newState[i][j] = 0;
 					} else {
 						newState[i][j] = current + prev;
+						g.setScoreNum(g.getScoreNum() + prev + current);
 					}
 					newState[i][j + 1] = 0;
 				} 
@@ -125,7 +127,7 @@ public class MoveManipulations {
 		return newState;
 	}
 	
-	public static int[][] mergeDown(int[][] latestState) {
+	public static int[][] mergeDown(int[][] latestState, GameBoard g) {
 		// create a new state to be modified
 		int[][] newState = Utils.copyArray(latestState);
 
@@ -138,6 +140,7 @@ public class MoveManipulations {
 						newState[j][i] = 0;
 					} else {
 						newState[j][i] = current + prev;
+						g.setScoreNum(g.getScoreNum() + prev + current);
 					}
 					newState[j - 1][i] = 0;
 				} 
@@ -172,7 +175,7 @@ public class MoveManipulations {
 		return newState;
 	}
 	
-	public static int[][] mergeUp(int[][] latestState) {
+	public static int[][] mergeUp(int[][] latestState, GameBoard g) {
 		// create a new state to be modified
 		int[][] newState = Utils.copyArray(latestState);
 
@@ -185,6 +188,7 @@ public class MoveManipulations {
 						newState[j][i] = 0;
 					} else {
 						newState[j][i] = current + prev;
+						g.setScoreNum(g.getScoreNum() + prev + current);
 					}
 					newState[j + 1][i] = 0;
 				} 
